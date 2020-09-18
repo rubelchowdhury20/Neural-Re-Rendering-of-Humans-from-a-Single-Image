@@ -10,7 +10,7 @@ from torchvision import models
 
 # Local imports
 import config
-import evaulate
+import evaluate
 import train
 
 def main(args):
@@ -25,13 +25,13 @@ def main(args):
 		config.PARAMS["batch_size"] = args.batch_size
 
 	# updating command line arguments to the ARGS variable
-	config.ARGS = args
+	config.args = args
 
 	# calling required functions based on the input arguments
 	if args.mode == "train":
-		train.train(args)
+		train.train(config)
 	else:
-		evaluate.evaluate(args)
+		evaluate.evaluate(config)
 
 
 if __name__ == '__main__':
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 	parser.add_argument(
 		"--batch_size",
 		type=int,
-		default=128,
+		default=8,
 		help="the batch_size for training as well as for inference")
 	parser.add_argument(
 		"--freeze_epochs",
@@ -69,5 +69,10 @@ if __name__ == '__main__':
 		type=str,
 		default="checkpoint.pth",
 		help="the name of the checkpoint file where the weights will be saved")
+	parser.add_argument(
+		"--data_directory",
+		type=str,
+		default="/media/tensor/EXTDRIVE/projects/virtual-try-on/dataset/zalando_final/",
+		help="path to the directory having images for training.")
 
 	main(parser.parse_args())
