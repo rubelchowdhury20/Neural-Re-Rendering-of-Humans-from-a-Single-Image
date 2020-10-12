@@ -34,7 +34,7 @@ def train(config):
 
 
 	for idx, batch in enumerate(train_loader):
-		texture_batch = batch
-		feature_output, feature_loss = model(texture_batch)
+		source_texture_batch, source_dense_batch, target_dense_batch = batch
+		feature_output, feature_loss = model(source_texture_batch, source_dense_batch, target_dense_batch)
 
 

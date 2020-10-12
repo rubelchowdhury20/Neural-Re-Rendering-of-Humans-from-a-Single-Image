@@ -212,5 +212,4 @@ class FeatureNet(nn.Module):
 		# as this module includes a softmax already.
 		x = self.conv_final(x)
 		loss = self.abs_loss(input_,x[:,:3,:,:]) + self.mse_loss(input_, x[:,:3,:,:])
-		print(loss)
 		return x, loss
