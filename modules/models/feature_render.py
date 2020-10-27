@@ -7,15 +7,18 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+# local imports
+
 
 class FeatureRender(nn.Module):
-	def __init__(self):
+	def __init__(self, config):
 		super(FeatureRender, self).__init__()
+		self.config = config
 		
 	def forward(self, feature, dense_pose):
 		atlas_feature = self._unfold_texture(feature)		# dimension(batch_size, channel, 24, height, width)
 		mapped_feature = self._map_texture(atlas_feature, dense_pose)
-		return 0
+		return mapped_feature
 
 
 	# unfolding the atlas feature textures to 24 channels
@@ -35,10 +38,9 @@ class FeatureRender(nn.Module):
 		_, self.dense_h, self.dense_w, self.dense_c = dense_pose.shape
 
 		# scattering the uv values to 25 parts based on the class information present in channel 1
-		dense_scatter_U = torch.zeros(25, self.bs, self.dense_h, self.dense_w). \
-							scatter_(0, dense_pose[:,:,:,0].unsqueeze(0).long(), dense_pose[:,:,:,1].unsqueeze(0))
-		dense_scatter_V = torch.zeros(25, self.bs, self.dense_h, self.dense_w).	\
-							scatter_(0, dense_pose[:,:,:,0].unsqueeze(0).long(), dense_pose[:,:,:,2].unsqueeze(0))
+		dense_scatter_zeros = torch.zeros(25, self.bs, self.dense_h, self.dense_w).to(self.config.DEVICE)
+		dense_scatter_U = dense_scatter_zeros.scatter_(0, dense_pose[:,:,:,0].unsqueeze(0).long(), dense_pose[:,:,:,1].unsqueeze(0).float())
+		dense_scatter_V = dense_scatter_zeros.scatter_(0, dense_pose[:,:,:,0].unsqueeze(0).long(), dense_pose[:,:,:,2].unsqueeze(0).float())
 
 
 		dense_U = dense_pose[:,:,:,1].unsqueeze(0)
@@ -87,5 +89,4 @@ class FeatureRender(nn.Module):
 		painted_texture = painted_texture.permute(0, 2, 1, 3, 4)
 		painted_texture = torch.sum(painted_texture, 2)
 
-		print(painted_texture.shape)
-		return painted_texture.shape
+		return painted_texture

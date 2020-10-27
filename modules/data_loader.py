@@ -32,6 +32,7 @@ class NeuralDataset(Dataset):
 		
 		target_image_path = self.path + "model_images/" + target_image_name + ".jpg"
 		target_dense_path = self.path + "model_images_dense/" + target_image_name + ".npy"
+		target_texture_path = self.path + "model_images_atlas_texture/" + target_image_name + ".jpg"
 
 
 		source_image = Image.open(source_image_path)
@@ -40,6 +41,7 @@ class NeuralDataset(Dataset):
 
 		target_image = Image.open(target_image_path)
 		target_dense = np.load(target_dense_path)
+		target_texture = Image.open(target_texture_path)
 
 		# converting the dense info to desirable resized format
 		source_dense = np.moveaxis(source_dense, 0, -1)
@@ -48,10 +50,13 @@ class NeuralDataset(Dataset):
 		target_dense = cv2.resize(target_dense, dsize=(256, 256), interpolation = cv2.INTER_NEAREST)
 
 		if self.transform:
-			source_texture = self.transform(source_texture)
+			source_image = self.transform(source_image)
 			source_dense = torch.from_numpy(source_dense)
+			source_texture = self.transform(source_texture)
+			target_image = self.transform(target_image)
 			target_dense = torch.from_numpy(target_dense)
-			return source_texture, source_dense, target_dense
+			target_texture = self.transform(target_texture)
+			return source_image, source_dense, source_texture, target_image, target_dense, target_texture
 
-		return source_texture, source_dense, target_dense
+		return source_image, source_dense, source_texture, target_image, target_dense, target_texture
 

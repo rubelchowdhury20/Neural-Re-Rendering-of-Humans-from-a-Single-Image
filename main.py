@@ -24,11 +24,21 @@ def main(args):
 	if(args.batch_size):
 		config.PARAMS["batch_size"] = args.batch_size
 
+
+	# taking care of gpu ids
+	str_ids = args.gpu_ids.split(',')
+	args.gpu_ids = []
+	for str_id in str_ids:
+		id = int(str_id)
+		if id >= 0:
+			args.gpu_ids.append(id)
+
+
 	# updating command line arguments to the ARGS variable
 	config.args = args
 
 	# calling required functions based on the input arguments
-	if args.mode == "train":
+	if args.is_train:
 		train.train(config)
 	else:
 		evaluate.evaluate(config)
@@ -36,18 +46,16 @@ def main(args):
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-	
-	parser.add_argument(
-		"--mode",
-		type=str,
-		default="train",
-		help="evaluation mode or training mode")
+
+	parser.add_argument('--is_train', 
+		action='store_false', 
+		help='continue training: load the latest model')
 
 	# arguments for training
 	parser.add_argument(
 		"--batch_size",
 		type=int,
-		default=8,
+		default=1,
 		help="the batch_size for training as well as for inference")
 	parser.add_argument(
 		"--freeze_epochs",
@@ -74,5 +82,51 @@ if __name__ == '__main__':
 		type=str,
 		default="/media/tensor/EXTDRIVE/projects/virtual-try-on/dataset/zalando_final/",
 		help="path to the directory having images for training.")
+
+
+
+	# project parameters
+	parser.add_argument('--name', type=str, default='render', help='name of the experiment. It decides where to store samples and models')        
+	parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
+
+
+	# network parameters
+	parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate for adam')
+	parser.add_argument('--beta1', type=float, default=0.5, help='momentum term of adam')
+	parser.add_argument('--norm', type=str, default='instance', help='instance normalization or batch normalization')
+	parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
+	parser.add_argument('--niter', type=int, default=100, help='# of iter at starting learning rate')
+	parser.add_argument('--niter_decay', type=int, default=100, help='# of iter to linearly decay learning rate to zero')
+
+	parser.add_argument('--continue_train', action='store_true', help='continue training: load the latest model')
+
+	
+	# for displays
+	parser.add_argument('--display_freq', type=int, default=100, help='frequency of showing training results on screen')
+	parser.add_argument('--print_freq', type=int, default=100, help='frequency of showing training results on console')
+	parser.add_argument('--save_latest_freq', type=int, default=1000, help='frequency of saving the latest results')
+	parser.add_argument('--save_epoch_freq', type=int, default=10, help='frequency of saving checkpoints at the end of epochs')   
+
+
+	# for generator
+	parser.add_argument('--netG_input_nc', type=int, default=16, help="# of input channels to the generator")
+	parser.add_argument('--ngf', type=int, default=64, help='# of gen filters in first conv layer')
+	parser.add_argument('--netG', type=str, default='global', help='selects model to use for netG')
+	parser.add_argument('--n_downsample_global', type=int, default=4, help='number of downsampling layers in netG') 
+	parser.add_argument('--n_blocks_global', type=int, default=1, help='number of residual blocks in the global generator network')
+	parser.add_argument('--n_blocks_local', type=int, default=3, help='number of residual blocks in the local enhancer network')
+	parser.add_argument('--n_local_enhancers', type=int, default=1, help='number of local enhancers to use')        
+	parser.add_argument('--niter_fix_global', type=int, default=0, help='number of epochs that we only train the outmost local enhancer')
+
+	# for discriminators        
+	parser.add_argument('--num_D', type=int, default=1, help='number of discriminators to use')
+	parser.add_argument('--n_layers_D', type=int, default=1, help='only used if which_model_netD==n_layers')
+	parser.add_argument('--ndf', type=int, default=64, help='# of discrim filters in first conv layer')    
+	parser.add_argument('--lambda_feat', type=float, default=10.0, help='weight for feature matching loss')                
+	parser.add_argument('--no_ganFeat_loss', action='store_true', help='if specified, do *not* use discriminator feature matching loss')
+	parser.add_argument('--no_vgg_loss', action='store_true', help='if specified, do *not* use VGG feature matching loss')        
+	parser.add_argument('--no_lsgan', action='store_true', help='do *not* use least square GAN, if false, use vanilla GAN')
+	parser.add_argument('--pool_size', type=int, default=0, help='the size of image buffer that stores previously generated images')
+
 
 	main(parser.parse_args())

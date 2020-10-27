@@ -31,5 +31,10 @@ PARAMS = {'batch_size': 8,
 			'num_workers': 16}
 
 
+# network parameters
+
+
+
+
 # command line arguments
 args = {}
