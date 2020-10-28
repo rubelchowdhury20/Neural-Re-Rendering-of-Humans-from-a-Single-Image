@@ -18,6 +18,7 @@ class CreateModel(nn.Module):
 			self.render_net = torch.nn.DataParallel(self.render_net, device_ids=config.args.gpu_ids)
 		self.optimizer_G = self.render_net.module.optimizer_G
 		self.optimizer_D = self.render_net.module.optimizer_D
+		# self.save = self.render_net.module
 
 	def forward(self, batch):
 		source_image = batch[0].to(self.config.DEVICE)
@@ -35,4 +36,6 @@ class CreateModel(nn.Module):
 
 		loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG = self.render_net(source_image, rendered_src_feat_on_tgt, target_image, rendered_tgt_feat_on_tgt, rendered_src_tex_on_tgt)
 
-		return loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG
+		loss_D = loss_D_fake + loss_D_real
+
+		return feature_loss, loss_D, loss_G_GAN,  loss_G_VGG

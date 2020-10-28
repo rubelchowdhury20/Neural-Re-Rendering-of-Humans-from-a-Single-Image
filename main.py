@@ -128,5 +128,9 @@ if __name__ == '__main__':
 	parser.add_argument('--no_lsgan', action='store_true', help='do *not* use least square GAN, if false, use vanilla GAN')
 	parser.add_argument('--pool_size', type=int, default=0, help='the size of image buffer that stores previously generated images')
 
+	# loss arguments
+	parser.add_argument('--lambda_tex', type=float, default=1.0, help='lambda value for feature/texture loss in total loss')
+	parser.add_argument('--lambda_adv', type=float, default=1.0, help='lambda value for adversarial loss in total loss')
+	parser.add_argument('--lambda_vgg', type=float, default=1.0, help='lambda value for vgg loss in total loss')    
 
 	main(parser.parse_args())

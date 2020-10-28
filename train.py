@@ -9,6 +9,8 @@ import random
 import torch
 from torch.utils.data import DataLoader
 
+import numpy as np
+
 # local imports
 import config
 from modules import data_loader
@@ -65,11 +67,10 @@ def train(config):
 			total_steps += config.args.batch_size
 			epoch_iter += config.args.batch_size
 			
-			loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG = model(batch)
+			feature_loss, loss_D, loss_G_GAN, loss_G_VGG = model(batch)
 
 			 # calculate final loss scalar
-			loss_G = loss_G_GAN + loss_G_VGG
-			loss_D = (loss_D_fake + loss_D_real) * 0.5
+			loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
 
 			############### Backward Pass ####################
 			# update generator weights
@@ -86,7 +87,7 @@ def train(config):
 			### save latest model
 			if total_steps % config.args.save_latest_freq == save_delta:
 				print('saving the latest model (epoch %d, total_steps %d)' % (epoch, total_steps))
-				model.module.save('latest')            
+				model.module.render_net.module.save('latest')            
 				np.savetxt(iter_path, (epoch, epoch_iter), delimiter=',', fmt='%d')
 
 		### save model for this epoch

@@ -9,7 +9,7 @@ import torch.nn as nn
 from . import networks
 from .base_model import BaseModel
 
-class Pix2PixHDModel(nn.Module):
+class Pix2PixHDModel(BaseModel):
 	def __init__(self, cfg):
 		super(Pix2PixHDModel, self).__init__()
 		self.netG_output_nc = 3
