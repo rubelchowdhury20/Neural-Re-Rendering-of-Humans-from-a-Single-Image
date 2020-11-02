@@ -15,10 +15,6 @@ import train
 
 def main(args):
 	# updating all the global variables based on the input arguments
-	if(args.freeze_epochs):
-		config.FREEZE_EPOCHS = args.freeze_epochs
-	if(args.unfreeze_epochs):
-		config.UNFREEZE_EPOCHS = args.unfreeze_epochs
 
 	# updating batch size
 	if(args.batch_size):
@@ -47,43 +43,7 @@ def main(args):
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 
-	parser.add_argument('--is_train', 
-		action='store_false', 
-		help='continue training: load the latest model')
-
-	# arguments for training
-	parser.add_argument(
-		"--batch_size",
-		type=int,
-		default=1,
-		help="the batch_size for training as well as for inference")
-	parser.add_argument(
-		"--freeze_epochs",
-		type=int,
-		default=1,
-		help="the total number of epochs for which the initial few layers will be frozen")
-	parser.add_argument(
-		"--unfreeze_epochs",
-		type=int,
-		default=200,
-		help="the total number of epochs for which the full network will be unfrozen")
-	parser.add_argument(
-		"--resume",
-		type=bool,
-		default=True,
-		help="Flag to resume the training from where it was stopped")
-	parser.add_argument(
-		"--checkpoint_name",
-		type=str,
-		default="checkpoint.pth",
-		help="the name of the checkpoint file where the weights will be saved")
-	parser.add_argument(
-		"--data_directory",
-		type=str,
-		default="/media/tensor/EXTDRIVE/projects/virtual-try-on/dataset/zalando_final/",
-		help="path to the directory having images for training.")
-
-
+	parser.add_argument('--is_train', action='store_false', help='continue training: load the latest model')
 
 	# project parameters
 	parser.add_argument('--name', type=str, default='render', help='name of the experiment. It decides where to store samples and models')        
@@ -91,6 +51,7 @@ if __name__ == '__main__':
 
 
 	# network parameters
+	parser.add_argument("--batch_size", type=int, default=1, help="the batch_size for training as well as for inference")
 	parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate for adam')
 	parser.add_argument('--beta1', type=float, default=0.5, help='momentum term of adam')
 	parser.add_argument('--norm', type=str, default='instance', help='instance normalization or batch normalization')
@@ -98,35 +59,39 @@ if __name__ == '__main__':
 	parser.add_argument('--niter', type=int, default=100, help='# of iter at starting learning rate')
 	parser.add_argument('--niter_decay', type=int, default=100, help='# of iter to linearly decay learning rate to zero')
 
+	parser.add_argument("--data_directory", type=str, default="/media/tensor/EXTDRIVE/projects/virtual-try-on/dataset/zalando_final/", help="path to the directory having images for training.")
 	parser.add_argument('--continue_train', action='store_true', help='continue training: load the latest model')
+	parser.add_argument('--load_pretrain', type=str, default='', help='load the pretrained model from the specified location')
 
-	
+
 	# for displays
 	parser.add_argument('--display_freq', type=int, default=100, help='frequency of showing training results on screen')
-	parser.add_argument('--print_freq', type=int, default=100, help='frequency of showing training results on console')
+	parser.add_argument('--print_freq', type=int, default=10, help='frequency of showing training results on console')
 	parser.add_argument('--save_latest_freq', type=int, default=1000, help='frequency of saving the latest results')
-	parser.add_argument('--save_epoch_freq', type=int, default=10, help='frequency of saving checkpoints at the end of epochs')   
+	parser.add_argument('--save_epoch_freq', type=int, default=100, help='frequency of saving checkpoints at the end of epochs')   
 
 
 	# for generator
 	parser.add_argument('--netG_input_nc', type=int, default=16, help="# of input channels to the generator")
-	parser.add_argument('--ngf', type=int, default=64, help='# of gen filters in first conv layer')
+	parser.add_argument('--ngf', type=int, default=16, help='# of gen filters in first conv layer')
 	parser.add_argument('--netG', type=str, default='global', help='selects model to use for netG')
-	parser.add_argument('--n_downsample_global', type=int, default=4, help='number of downsampling layers in netG') 
+	parser.add_argument('--n_downsample_global', type=int, default=1, help='number of downsampling layers in netG') 
 	parser.add_argument('--n_blocks_global', type=int, default=1, help='number of residual blocks in the global generator network')
 	parser.add_argument('--n_blocks_local', type=int, default=3, help='number of residual blocks in the local enhancer network')
 	parser.add_argument('--n_local_enhancers', type=int, default=1, help='number of local enhancers to use')        
 	parser.add_argument('--niter_fix_global', type=int, default=0, help='number of epochs that we only train the outmost local enhancer')
 
+
 	# for discriminators        
 	parser.add_argument('--num_D', type=int, default=1, help='number of discriminators to use')
 	parser.add_argument('--n_layers_D', type=int, default=1, help='only used if which_model_netD==n_layers')
-	parser.add_argument('--ndf', type=int, default=64, help='# of discrim filters in first conv layer')    
+	parser.add_argument('--ndf', type=int, default=16, help='# of discrim filters in first conv layer')    
 	parser.add_argument('--lambda_feat', type=float, default=10.0, help='weight for feature matching loss')                
 	parser.add_argument('--no_ganFeat_loss', action='store_true', help='if specified, do *not* use discriminator feature matching loss')
 	parser.add_argument('--no_vgg_loss', action='store_true', help='if specified, do *not* use VGG feature matching loss')        
 	parser.add_argument('--no_lsgan', action='store_true', help='do *not* use least square GAN, if false, use vanilla GAN')
 	parser.add_argument('--pool_size', type=int, default=0, help='the size of image buffer that stores previously generated images')
+
 
 	# loss arguments
 	parser.add_argument('--lambda_tex', type=float, default=1.0, help='lambda value for feature/texture loss in total loss')

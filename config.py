@@ -26,7 +26,7 @@ dense_transform = transforms.Compose([
 	])
 
 # params info
-PARAMS = {'batch_size': 8,
+PARAMS = {'batch_size': 1,
 			'shuffle': True,
 			'num_workers': 16}
 

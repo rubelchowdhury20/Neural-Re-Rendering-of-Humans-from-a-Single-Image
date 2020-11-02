@@ -1,6 +1,10 @@
+# standard imports
 import os
 import torch
 import sys
+
+# local imports
+from ..utils import ensure_directory
 
 class BaseModel(torch.nn.Module):
     def name(self):
@@ -11,6 +15,7 @@ class BaseModel(torch.nn.Module):
         self.gpu_ids = opt.gpu_ids
         self.Tensor = torch.cuda.FloatTensor if self.gpu_ids else torch.Tensor
         self.save_dir = os.path.join(opt.checkpoints_dir, opt.name)
+        ensure_directory(self.save_dir)
 
     def set_input(self, input):
         self.input = input

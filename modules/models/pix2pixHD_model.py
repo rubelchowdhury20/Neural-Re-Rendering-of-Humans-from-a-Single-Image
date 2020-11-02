@@ -31,6 +31,18 @@ class Pix2PixHDModel(BaseModel):
 										  self.cfg.num_D, not self.cfg.no_ganFeat_loss, gpu_ids=self.cfg.gpu_ids)
 
 
+
+
+		# load networks
+		if not self.cfg.is_train or self.cfg.continue_train or self.cfg.load_pretrain:
+			pretrained_path = '' if not self.cfg.is_train else self.cfg.load_pretrain
+			self.load_network(self.netG, 'G', self.cfg.which_epoch, pretrained_path)            
+			if self.is_train:
+				self.load_network(self.netD, 'D', self.cfg.which_epoch, pretrained_path)  
+			
+
+
+		if self.cfg.is_train:
 			self.old_lr = self.cfg.lr
 
 
