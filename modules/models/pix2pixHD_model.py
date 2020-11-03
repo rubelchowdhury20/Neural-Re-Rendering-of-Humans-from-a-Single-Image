@@ -80,7 +80,7 @@ class Pix2PixHDModel(BaseModel):
 		if not self.cfg.no_vgg_loss:
 			loss_G_VGG = self.criterionVGG(fake_image, src_tex_rendered_on_tgt) * self.cfg.lambda_feat
 
-		return loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG
+		return loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG, fake_image
 
 	def save(self, which_epoch):
 		self.save_network(self.netG, 'G', which_epoch, self.cfg.gpu_ids)

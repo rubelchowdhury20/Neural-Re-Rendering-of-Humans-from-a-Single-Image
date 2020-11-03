@@ -66,10 +66,13 @@ if __name__ == '__main__':
 
 
 	# for displays
-	parser.add_argument('--display_freq', type=int, default=10, help='frequency of showing training results on screen')
+	parser.add_argument('--display_freq', type=int, default=1, help='frequency of showing training results on screen')
 	parser.add_argument('--print_freq', type=int, default=50, help='frequency of showing training results on console')
 	parser.add_argument('--save_latest_freq', type=int, default=100, help='frequency of saving the latest results')
-	parser.add_argument('--save_epoch_freq', type=int, default=2, help='frequency of saving checkpoints at the end of epochs')   
+	parser.add_argument('--save_epoch_freq', type=int, default=2, help='frequency of saving checkpoints at the end of epochs')
+	parser.add_argument('--no_html', action='store_true', help='do not save intermediate training results to [opt.checkpoints_dir]/[opt.name]/web/')
+	parser.add_argument('--display_winsize', type=int, default=512,  help='display window size')
+	parser.add_argument('--tf_log', action='store_true', help='if specified, use tensorboard logging. Requires tensorflow installed')
 
 
 	# for generator

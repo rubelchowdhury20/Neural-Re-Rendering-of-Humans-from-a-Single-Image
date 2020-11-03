@@ -10,12 +10,17 @@ import torch
 from torch.utils.data import DataLoader
 
 import numpy as np
+from collections import OrderedDict
 
 # local imports
 import config
-from modules import data_loader
+from modules.data_loader import NeuralDataset
 from modules.models import create_model
-from modules.utils import AverageMeter
+from modules.utils.util import AverageMeter
+from modules.utils.util import tensor2im
+from modules.utils.visualizer import Visualizer
+
+
 
 def train(config):
 	# important variables
@@ -45,7 +50,7 @@ def train(config):
 
 
 	# loading dataloader
-	train_dataset = data_loader.NeuralDataset(train_image_list, data_path, config.data_transforms["train"])
+	train_dataset = NeuralDataset(train_image_list, data_path, config.data_transforms["train"])
 	train_loader = DataLoader(train_dataset, **config.PARAMS)
 	dataset_size = len(train_loader)
 
@@ -55,6 +60,10 @@ def train(config):
 		model = torch.nn.DataParallel(model, device_ids=config.args.gpu_ids)
 
 	optimizer_G, optimizer_D = model.module.optimizer_G, model.module.optimizer_D
+
+
+	# initializing the visualization option
+	visualizer = Visualizer(config.args)
 
 	# saving options
 	total_steps = (start_epoch-1) * dataset_size + epoch_iter	# total number of iterations/steps happened till now, from the start of the training
@@ -78,7 +87,7 @@ def train(config):
 			total_steps += config.args.batch_size
 			epoch_iter += config.args.batch_size
 			
-			feature_loss, loss_D, loss_G_GAN, loss_G_VGG = model(batch)
+			feature_loss, loss_D, loss_G_GAN, loss_G_VGG, rendered_image = model(batch)
 			 # calculate final loss scalar
 			loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
 
@@ -117,6 +126,13 @@ def train(config):
 																loss_G_VGG_meter.val, loss_G_VGG_meter.avg))
 				print("\n")
 
+			if total_steps % config.args.display_freq == display_delta:
+				fake_image = rendered_image[0].cpu().detach()
+				visuals = OrderedDict([("source_image", tensor2im(batch[0][0])),
+										("target_image", tensor2im(batch[3][0])),
+										("rendered_image", tensor2im(fake_image))])
+				visualizer.display_current_results(visuals, epoch, total_steps)
+
 			### save latest model
 			if total_steps % config.args.save_latest_freq == save_delta:
 				print('saving the latest model (epoch %d, total_steps %d)' % (epoch, total_steps))
@@ -124,35 +140,6 @@ def train(config):
 				model.module.save_feature_net("latest")            
 				np.savetxt(iter_path, (epoch, epoch_iter), delimiter=',', fmt='%d')
 
-			##################################################################################
-			##################################################################################
-			##################################################################################
-			
-			# total_steps += config.args.batch_size
-			# epoch_iter += config.args.batch_size
-			
-			# feature_loss, loss_D, loss_G_GAN, loss_G_VGG = model(batch)
-
-			#  # calculate final loss scalar
-			# loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
-
-			# ############### Backward Pass ####################
-			# # update generator weights
-			# optimizer_G.zero_grad()
-			# loss_G.backward(retain_graph=True)          
-			# optimizer_G.step()
-
-			# # update discriminator weights
-			# optimizer_D.zero_grad()
-			# loss_D.backward(retain_graph=True)        
-			# optimizer_D.step()
-
-
-			# ### save latest model
-			# if total_steps % config.args.save_latest_freq == save_delta:
-			# 	print('saving the latest model (epoch %d, total_steps %d)' % (epoch, total_steps))
-			# 	model.module.render_net.module.save('latest')            
-			# 	np.savetxt(iter_path, (epoch, epoch_iter), delimiter=',', fmt='%d')
 
 		### save model for this epoch
 		if epoch % config.args.save_epoch_freq == 0:

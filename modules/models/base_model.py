@@ -4,7 +4,7 @@ import torch
 import sys
 
 # local imports
-from ..utils import ensure_directory
+from ..utils.util import ensure_directory
 
 class BaseModel(torch.nn.Module):
     def name(self):
