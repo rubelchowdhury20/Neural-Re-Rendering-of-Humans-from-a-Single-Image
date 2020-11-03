@@ -62,20 +62,21 @@ if __name__ == '__main__':
 	parser.add_argument("--data_directory", type=str, default="/media/tensor/EXTDRIVE/projects/virtual-try-on/dataset/zalando_final/", help="path to the directory having images for training.")
 	parser.add_argument('--continue_train', action='store_true', help='continue training: load the latest model')
 	parser.add_argument('--load_pretrain', type=str, default='', help='load the pretrained model from the specified location')
+	parser.add_argument('--which_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
 
 
 	# for displays
-	parser.add_argument('--display_freq', type=int, default=100, help='frequency of showing training results on screen')
-	parser.add_argument('--print_freq', type=int, default=10, help='frequency of showing training results on console')
-	parser.add_argument('--save_latest_freq', type=int, default=1000, help='frequency of saving the latest results')
-	parser.add_argument('--save_epoch_freq', type=int, default=100, help='frequency of saving checkpoints at the end of epochs')   
+	parser.add_argument('--display_freq', type=int, default=10, help='frequency of showing training results on screen')
+	parser.add_argument('--print_freq', type=int, default=50, help='frequency of showing training results on console')
+	parser.add_argument('--save_latest_freq', type=int, default=100, help='frequency of saving the latest results')
+	parser.add_argument('--save_epoch_freq', type=int, default=2, help='frequency of saving checkpoints at the end of epochs')   
 
 
 	# for generator
 	parser.add_argument('--netG_input_nc', type=int, default=16, help="# of input channels to the generator")
-	parser.add_argument('--ngf', type=int, default=16, help='# of gen filters in first conv layer')
+	parser.add_argument('--ngf', type=int, default=64, help='# of gen filters in first conv layer')
 	parser.add_argument('--netG', type=str, default='global', help='selects model to use for netG')
-	parser.add_argument('--n_downsample_global', type=int, default=1, help='number of downsampling layers in netG') 
+	parser.add_argument('--n_downsample_global', type=int, default=3, help='number of downsampling layers in netG') 
 	parser.add_argument('--n_blocks_global', type=int, default=1, help='number of residual blocks in the global generator network')
 	parser.add_argument('--n_blocks_local', type=int, default=3, help='number of residual blocks in the local enhancer network')
 	parser.add_argument('--n_local_enhancers', type=int, default=1, help='number of local enhancers to use')        
@@ -85,7 +86,7 @@ if __name__ == '__main__':
 	# for discriminators        
 	parser.add_argument('--num_D', type=int, default=1, help='number of discriminators to use')
 	parser.add_argument('--n_layers_D', type=int, default=1, help='only used if which_model_netD==n_layers')
-	parser.add_argument('--ndf', type=int, default=16, help='# of discrim filters in first conv layer')    
+	parser.add_argument('--ndf', type=int, default=64, help='# of discrim filters in first conv layer')    
 	parser.add_argument('--lambda_feat', type=float, default=10.0, help='weight for feature matching loss')                
 	parser.add_argument('--no_ganFeat_loss', action='store_true', help='if specified, do *not* use discriminator feature matching loss')
 	parser.add_argument('--no_vgg_loss', action='store_true', help='if specified, do *not* use VGG feature matching loss')        

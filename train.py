@@ -120,7 +120,8 @@ def train(config):
 			### save latest model
 			if total_steps % config.args.save_latest_freq == save_delta:
 				print('saving the latest model (epoch %d, total_steps %d)' % (epoch, total_steps))
-				model.module.render_net.module.save('latest')            
+				model.module.render_net.module.save('latest')
+				model.module.save_feature_net("latest")            
 				np.savetxt(iter_path, (epoch, epoch_iter), delimiter=',', fmt='%d')
 
 			##################################################################################
@@ -156,8 +157,13 @@ def train(config):
 		### save model for this epoch
 		if epoch % config.args.save_epoch_freq == 0:
 			print('saving the model at the end of epoch %d, iters %d' % (epoch, total_steps))        
-			model.module.save('latest')
-			model.module.save(epoch)
+			
+			model.module.render_net.module.save('latest')
+			model.module.save_feature_net("latest")            
+
+			model.module.render_net.module.save(epoch)
+			model.module.save_feature_net(epoch)
+
 			np.savetxt(iter_path, (epoch+1, 0), delimiter=',', fmt='%d')
 
 		### linearly decay learning rate after certain iterations

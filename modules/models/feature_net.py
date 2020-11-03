@@ -4,6 +4,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+# local imports
+from .base_model import BaseModel
+
 
 #---------------------- basic convolution blocks ------------------------#
 def conv1x1(in_channels, out_channels, groups=1):
@@ -106,7 +109,7 @@ class UpConv(nn.Module):
 
 
 class FeatureNet(nn.Module):
-	def __init__(self, num_classes, in_channels=3, depth=1,
+	def __init__(self, num_classes, in_channels=3, depth=5,
 				 start_filts=64, up_mode='transpose',
 				 merge_mode='concat'):
 		"""
@@ -189,7 +192,6 @@ class FeatureNet(nn.Module):
 			nn.init.xavier_normal(m.weight)
 			nn.init.constant(m.bias, 0)
 
-
 	def reset_params(self):
 		for i, m in enumerate(self.modules()):
 			self.weight_init(m)
@@ -213,3 +215,7 @@ class FeatureNet(nn.Module):
 		x = self.conv_final(x)
 		loss = self.abs_loss(input_,x[:,:3,:,:]) + self.mse_loss(input_, x[:,:3,:,:])
 		return x, loss
+
+	def save(self, which_epoch):
+		self.save_network(self.netG, 'G', which_epoch, self.cfg.gpu_ids)
+		self.save_network(self.netD, 'D', which_epoch, self.cfg.gpu_ids)

@@ -37,7 +37,7 @@ class Pix2PixHDModel(BaseModel):
 		if not self.cfg.is_train or self.cfg.continue_train or self.cfg.load_pretrain:
 			pretrained_path = '' if not self.cfg.is_train else self.cfg.load_pretrain
 			self.load_network(self.netG, 'G', self.cfg.which_epoch, pretrained_path)            
-			if self.is_train:
+			if self.cfg.is_train:
 				self.load_network(self.netD, 'D', self.cfg.which_epoch, pretrained_path)  
 			
 

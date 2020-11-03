@@ -6,19 +6,31 @@ import torch.nn as nn
 from . import feature_net
 from . import feature_render
 from . import pix2pixHD_model
+from .base_model import BaseModel
 
-class CreateModel(nn.Module):
+class CreateModel(BaseModel):
 	def __init__(self, config):
 		super(CreateModel, self).__init__()
 		self.config = config
+
+		BaseModel.initialize(self, self.config.args)
+
 		self.feature_net = feature_net.FeatureNet(num_classes=self.config.args.netG_input_nc, up_mode="upsample").to(self.config.DEVICE)
 		self.feature_render = feature_render.FeatureRender(self.config).to(self.config.DEVICE)
-		self.render_net = pix2pixHD_model.Pix2PixHDModel(config.args).to(self.config.DEVICE)
+		self.render_net = pix2pixHD_model.Pix2PixHDModel(self.config.args).to(self.config.DEVICE)
 		if config.args.is_train and len(config.args.gpu_ids):
+			self.feature_net = torch.nn.DataParallel(self.feature_net, device_ids=config.args.gpu_ids)
+			self.feature_render = torch.nn.DataParallel(self.feature_render, device_ids=config.args.gpu_ids)
 			self.render_net = torch.nn.DataParallel(self.render_net, device_ids=config.args.gpu_ids)
+
+		# load networks
+		if not self.config.args.is_train or self.config.args.continue_train or self.config.args.load_pretrain:
+			pretrained_path = '' if not self.config.args.is_train else self.config.args.load_pretrain
+			self.load_network(self.feature_net, 'Feature', self.config.args.which_epoch, pretrained_path)              
+			
+		
 		self.optimizer_G = self.render_net.module.optimizer_G
 		self.optimizer_D = self.render_net.module.optimizer_D
-		# self.save = self.render_net.module
 
 	def forward(self, batch):
 		source_image = batch[0].to(self.config.DEVICE)
@@ -39,3 +51,7 @@ class CreateModel(nn.Module):
 		loss_D = loss_D_fake + loss_D_real
 
 		return feature_loss, loss_D, loss_G_GAN,  loss_G_VGG
+
+	def save_feature_net(self, which_epoch):
+		self.save_network(self.feature_net, 'Feature', which_epoch, self.config.args.gpu_ids)
+		
