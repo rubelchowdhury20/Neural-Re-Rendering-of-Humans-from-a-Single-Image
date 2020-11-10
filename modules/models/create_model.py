@@ -15,7 +15,7 @@ class CreateModel(BaseModel):
 
 		BaseModel.initialize(self, self.config.args)
 
-		self.feature_net = feature_net.FeatureNet(num_classes=self.config.args.netG_input_nc, up_mode="upsample").to(self.config.DEVICE)
+		self.feature_net = feature_net.FeatureNet(num_classes=self.config.args.netG_input_nc, depth=self.config.args.feature_depth, up_mode="upsample").to(self.config.DEVICE)
 		self.feature_render = feature_render.FeatureRender(self.config).to(self.config.DEVICE)
 		self.render_net = pix2pixHD_model.Pix2PixHDModel(self.config.args).to(self.config.DEVICE)
 		if config.args.is_train and len(config.args.gpu_ids):
@@ -46,11 +46,11 @@ class CreateModel(BaseModel):
 		rendered_tgt_feat_on_tgt = self.feature_render(target_feature_output, target_dense)
 		rendered_src_tex_on_tgt = self.feature_render(source_texture, target_dense)
 
-		loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG, rendered_image = self.render_net(source_image, rendered_src_feat_on_tgt, target_image, rendered_tgt_feat_on_tgt, rendered_src_tex_on_tgt)
+		loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG, rendered_image, img1, img2, img3 = self.render_net(source_image, rendered_src_feat_on_tgt, target_image, rendered_tgt_feat_on_tgt, rendered_src_tex_on_tgt)
 
 		loss_D = loss_D_fake + loss_D_real
 
-		return feature_loss, loss_D, loss_G_GAN,  loss_G_VGG, rendered_image
+		return feature_loss, loss_D, loss_G_GAN,  loss_G_VGG, rendered_image, img1, img2, img3
 
 	def save_feature_net(self, which_epoch):
 		self.save_network(self.feature_net, 'Feature', which_epoch, self.config.args.gpu_ids)

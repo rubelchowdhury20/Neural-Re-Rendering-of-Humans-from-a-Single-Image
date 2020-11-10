@@ -75,6 +75,10 @@ if __name__ == '__main__':
 	parser.add_argument('--tf_log', action='store_true', help='if specified, use tensorboard logging. Requires tensorflow installed')
 
 
+	# for feature net
+	parser.add_argument('--feature_depth', type=int, default=3, help="# of downsampling blocks in the feature net architecture")
+
+
 	# for generator
 	parser.add_argument('--netG_input_nc', type=int, default=16, help="# of input channels to the generator")
 	parser.add_argument('--ngf', type=int, default=64, help='# of gen filters in first conv layer')
@@ -90,7 +94,7 @@ if __name__ == '__main__':
 	parser.add_argument('--num_D', type=int, default=1, help='number of discriminators to use')
 	parser.add_argument('--n_layers_D', type=int, default=1, help='only used if which_model_netD==n_layers')
 	parser.add_argument('--ndf', type=int, default=64, help='# of discrim filters in first conv layer')    
-	parser.add_argument('--lambda_feat', type=float, default=10.0, help='weight for feature matching loss')                
+	# parser.add_argument('--lambda_feat', type=float, default=10.0, help='weight for feature matching loss')                
 	parser.add_argument('--no_ganFeat_loss', action='store_true', help='if specified, do *not* use discriminator feature matching loss')
 	parser.add_argument('--no_vgg_loss', action='store_true', help='if specified, do *not* use VGG feature matching loss')        
 	parser.add_argument('--no_lsgan', action='store_true', help='do *not* use least square GAN, if false, use vanilla GAN')

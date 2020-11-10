@@ -87,9 +87,10 @@ def train(config):
 			total_steps += config.args.batch_size
 			epoch_iter += config.args.batch_size
 			
-			feature_loss, loss_D, loss_G_GAN, loss_G_VGG, rendered_image = model(batch)
+			feature_loss, loss_D, loss_G_GAN, loss_G_VGG, rendered_image, img1, img2, img3 = model(batch)
 			 # calculate final loss scalar
 			loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
+			# loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN
 
 			feature_loss_meter.update(feature_loss.item(), config.args.batch_size)
 			loss_D_meter.update(loss_D.item(), config.args.batch_size)
@@ -128,9 +129,18 @@ def train(config):
 
 			if total_steps % config.args.display_freq == display_delta:
 				fake_image = rendered_image[0].cpu().detach()
+				img1 = img1[0,:3,:,:].cpu().detach()
+				img2 = img2[0,:3,:,:].cpu().detach()
+				img3 = img3[0,:3,:,:].cpu().detach()
+
 				visuals = OrderedDict([("source_image", tensor2im(batch[0][0])),
 										("target_image", tensor2im(batch[3][0])),
-										("rendered_image", tensor2im(fake_image))])
+										("rendered_image", tensor2im(fake_image)),
+										("src on tgt", tensor2im(img1)),
+										("tgt on tgt", tensor2im(img2)),
+										("source texture", tensor2im(batch[2][0])),
+										("src tex on tgt", tensor2im(img3))])
+
 				visualizer.display_current_results(visuals, epoch, total_steps)
 
 			### save latest model
