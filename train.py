@@ -105,18 +105,18 @@ def train(config):
 			loss_G_meter.update(loss_G.item(), config.args.batch_size)
 
 			############### Backward Pass ####################
+			optimizer_G.zero_grad()
+			optimizer_feature.zero_grad()
+			optimizer_D.zero_grad()
 			
 			# update generator weights
-			optimizer_G.zero_grad()
 			loss_G.backward(retain_graph=True)          
 			optimizer_G.step()
 			
 			# update feature-net weights
-			optimizer_feature.zero_grad()
 			optimizer_feature.step()
 			
 			# update discriminator weights
-			optimizer_D.zero_grad()
 			loss_D.backward        
 			optimizer_D.step()
 
