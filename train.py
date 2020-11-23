@@ -59,7 +59,7 @@ def train(config):
 	if config.args.is_train and len(config.args.gpu_ids):
 		model = torch.nn.DataParallel(model, device_ids=config.args.gpu_ids)
 
-	optimizer_G, optimizer_D = model.module.optimizer_G, model.module.optimizer_D
+	optimizer_feature, optimizer_G, optimizer_D = model.module.optimizer_feature, model.module.optimizer_G, model.module.optimizer_D
 
 
 	# initializing the visualization option
@@ -99,11 +99,16 @@ def train(config):
 			loss_G_meter.update(loss_G.item(), config.args.batch_size)
 
 			############### Backward Pass ####################
+			
 			# update generator weights
 			optimizer_G.zero_grad()
 			loss_G.backward(retain_graph=True)          
 			optimizer_G.step()
-
+			
+			# update feature-net weights
+			optimizer_feature.zero_grad()
+			optimizer_feature.step()
+			
 			# update discriminator weights
 			optimizer_D.zero_grad()
 			loss_D.backward        
