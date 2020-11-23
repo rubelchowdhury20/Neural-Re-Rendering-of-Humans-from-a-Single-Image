@@ -88,6 +88,12 @@ def train(config):
 			epoch_iter += config.args.batch_size
 			
 			feature_loss, loss_D, loss_G_GAN, loss_G_VGG, rendered_image, img1, img2, img3 = model(batch)
+
+			feature_loss = torch.mean(feature_loss)
+			loss_D = torch.mean(loss_D)
+			loss_G_GAN = torch.mean(loss_G_GAN)
+			loss_G_VGG = torch.mean(loss_G_VGG)
+
 			 # calculate final loss scalar
 			loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
 			# loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN
@@ -151,7 +157,7 @@ def train(config):
 			### save latest model
 			if total_steps % config.args.save_latest_freq == save_delta:
 				print('saving the latest model (epoch %d, total_steps %d)' % (epoch, total_steps))
-				model.module.render_net.module.save('latest')
+				model.module.render_net.save('latest')
 				model.module.save_feature_net("latest")            
 				np.savetxt(iter_path, (epoch, epoch_iter), delimiter=',', fmt='%d')
 
@@ -160,10 +166,10 @@ def train(config):
 		if epoch % config.args.save_epoch_freq == 0:
 			print('saving the model at the end of epoch %d, iters %d' % (epoch, total_steps))        
 			
-			model.module.render_net.module.save('latest')
+			model.module.render_net.save('latest')
 			model.module.save_feature_net("latest")            
 
-			model.module.render_net.module.save(epoch)
+			model.module.render_net.save(epoch)
 			model.module.save_feature_net(epoch)
 
 			np.savetxt(iter_path, (epoch+1, 0), delimiter=',', fmt='%d')

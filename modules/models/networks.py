@@ -42,7 +42,6 @@ def define_G(input_nc, output_nc, ngf, netG, n_downsample_global=3, n_blocks_glo
     # print(netG)
     if len(gpu_ids) > 0:
         assert(torch.cuda.is_available())   
-        print(gpu_ids[0])
         netG.cuda(gpu_ids[0])
     netG.apply(weights_init)
     return netG

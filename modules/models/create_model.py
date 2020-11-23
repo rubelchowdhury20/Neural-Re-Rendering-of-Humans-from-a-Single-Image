@@ -32,8 +32,8 @@ class CreateModel(BaseModel):
 
 
 		self.optimizer_feature = torch.optim.Adam(self.feature_net.parameters(), lr=self.config.args.lr, betas=(self.config.args.beta1, 0.999)) 
-		self.optimizer_G = self.render_net.module.optimizer_G
-		self.optimizer_D = self.render_net.module.optimizer_D
+		self.optimizer_G = self.render_net.optimizer_G
+		self.optimizer_D = self.render_net.optimizer_D
 
 	def forward(self, batch):
 		source_image = batch[0].to(self.config.DEVICE)
