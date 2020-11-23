@@ -19,6 +19,7 @@ class CreateModel(BaseModel):
 		self.feature_render = feature_render.FeatureRender(self.config).to(self.config.DEVICE)
 		self.render_net = pix2pixHD_model.Pix2PixHDModel(self.config.args).to(self.config.DEVICE)
 		if config.args.is_train and len(config.args.gpu_ids):
+			pass
 			# self.feature_net = torch.nn.DataParallel(self.feature_net, device_ids=config.args.gpu_ids)
 			# self.feature_render = torch.nn.DataParallel(self.feature_render, device_ids=config.args.gpu_ids)
 			# self.render_net = torch.nn.DataParallel(self.render_net, device_ids=config.args.gpu_ids)
