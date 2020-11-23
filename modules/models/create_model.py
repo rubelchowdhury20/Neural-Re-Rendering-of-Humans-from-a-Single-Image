@@ -26,8 +26,10 @@ class CreateModel(BaseModel):
 		# load networks
 		if not self.config.args.is_train or self.config.args.continue_train or self.config.args.load_pretrain:
 			pretrained_path = '' if not self.config.args.is_train else self.config.args.load_pretrain
-			self.load_network(self.feature_net, 'Feature', self.config.args.which_epoch, pretrained_path)              
-			
+			self.load_network(self.feature_net, 'Feature', self.config.args.which_epoch, pretrained_path)
+
+
+
 		self.optimizer_feature = torch.optim.Adam(self.feature_net.parameters(), lr=self.config.args.lr, betas=(self.config.args.beta1, 0.999)) 
 		self.optimizer_G = self.render_net.module.optimizer_G
 		self.optimizer_D = self.render_net.module.optimizer_D
