@@ -20,7 +20,7 @@ class Pix2PixHDModel(BaseModel):
 		# define networks
 
 		# generator network
-		self.netG = networks.define_G(self.cfg.netG_input_nc, self.netG_output_nc, self.cfg.ngf, self.cfg.netG, 
+		self.netG = networks.define_G(self.cfg.netG_input_nc+3, self.netG_output_nc, self.cfg.ngf, self.cfg.netG, 
 						self.cfg.n_downsample_global, self.cfg.n_blocks_global, gpu_ids=self.cfg.gpu_ids)
 
 		# discriminator network
@@ -61,7 +61,8 @@ class Pix2PixHDModel(BaseModel):
 
 
 	def forward(self, src_img, src_rendered_on_tgt, tgt_img, tgt_rendered_on_tgt, src_tex_rendered_on_tgt):
-		fake_image = self.netG.forward(src_rendered_on_tgt)
+		# fake_image = self.netG.forward(src_rendered_on_tgt)
+		fake_image = self.netG.forward(torch.cat((src_rendered_on_tgt, tgt_img), dim=1))
 
 		# fake detection and loss
 		pred_fake = self.discriminate(src_rendered_on_tgt, fake_image)
