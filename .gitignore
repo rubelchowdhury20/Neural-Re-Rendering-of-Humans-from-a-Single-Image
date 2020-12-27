@@ -130,3 +130,5 @@ dmypy.json
 
 # directories
 /checkpoints/
+/notebooks/
+/checkpoint_backups/
