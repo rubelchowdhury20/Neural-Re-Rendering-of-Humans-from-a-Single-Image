@@ -79,11 +79,11 @@ if __name__ == '__main__':
 
 	# for feature net
 	parser.add_argument('--feature_depth', type=int, default=2, help="# of downsampling blocks in the feature net architecture")
-	parser.add_argument('--feature_output_nc', type=int, default=8, help="# of channels of feature net output")
+	parser.add_argument('--feature_output_nc', type=int, default=16, help="# of channels of feature net output")
 
 
 	# for generator
-	parser.add_argument('--netG_input_nc', type=int, default=14, help="# of input channels to the generator")
+	parser.add_argument('--netG_input_nc', type=int, default=22, help="# of input channels to the generator")
 	parser.add_argument('--ngf', type=int, default=64, help='# of gen filters in first conv layer')
 	parser.add_argument('--netG', type=str, default='global', help='selects model to use for netG')
 	parser.add_argument('--n_downsample_global', type=int, default=2, help='number of downsampling layers in netG') 
