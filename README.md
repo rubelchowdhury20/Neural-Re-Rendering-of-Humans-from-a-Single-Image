@@ -2,15 +2,19 @@
 
 [Paper](http://gvv.mpi-inf.mpg.de/projects/NHRR/data/1415.pdf)
 
+The code was implemented for the **Garment Transfer** obejctive, where top cloth of the source image was rendered on the target image.
+
 ### Results:
+#### Sample Results from training using the LIP dataset:
+![result_1](https://i.imgur.com/O37lmQ2.png)
+![result_2](https://i.imgur.com/iIn0KK1.png)
+
 Training is in progress, results will be published very soon.
 
 ### Architecture:
-
 ![architecture](https://i.imgur.com/uv31u7L.png)
 
+
 ### Dataset:
-
-We have used Source image of a person along with it's apprel product image as a pair, scraped from Zalando website to train the network. Densepose info obtained using the Detectron2 is used to collect the texture map of the image which is used for the training purpose. 
-
+The LIP dataset(Image-based Multi-pose Virtual Try On) was used to train the model.
 
