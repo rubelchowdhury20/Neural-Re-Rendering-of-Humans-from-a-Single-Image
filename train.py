@@ -3,6 +3,7 @@ import os
 import math
 import time
 import glob
+import pickle
 import random
 
 # third party imports
@@ -27,7 +28,9 @@ def train(config):
 	data_path = config.args.data_directory
 
 	# steps for preparing and splitting the data for training
-	image_list = [i.split("/")[-1] for i in glob.glob(data_path + "model_images/*")]
+	with open(data_path + "lip_pairs.pkl", "rb") as fp:   #Pickling
+		image_list = pickle.load(fp)
+	# image_list = [i.split("/")[-1] for i in glob.glob(data_path + "model_images/*")]
 
 	# splitting the images to train and validation set
 	random.shuffle(image_list)
@@ -87,7 +90,7 @@ def train(config):
 			total_steps += config.args.batch_size
 			epoch_iter += config.args.batch_size
 			
-			feature_loss, loss_D, loss_G_GAN, loss_G_VGG, rendered_image, img1, img2, img3 = model(batch)
+			feature_loss, loss_D, loss_G_GAN, loss_G_VGG, rendered_image, src_img, tgt_img, src_feat_rendered_on_tgt, tgt_feat_rendered_on_tgt = model(batch)
 
 			feature_loss = torch.mean(feature_loss)
 			loss_D = torch.mean(loss_D)
@@ -140,17 +143,20 @@ def train(config):
 
 			if total_steps % config.args.display_freq == display_delta:
 				fake_image = rendered_image[0].cpu().detach()
-				img1 = img1[0,:3,:,:].cpu().detach()
-				img2 = img2[0,:3,:,:].cpu().detach()
-				img3 = img3[0,:3,:,:].cpu().detach()
+				src_on_tgt = src_feat_rendered_on_tgt[0,:3,:,:].cpu().detach()
+				tgt_on_tgt = tgt_feat_rendered_on_tgt[0,:3,:,:].cpu().detach()
 
-				visuals = OrderedDict([("source_image", tensor2im(batch[0][0])),
-										("target_image", tensor2im(batch[3][0])),
+				src_on_tgt_masked = src_feat_rendered_on_tgt[0,-3:,:,:].cpu().detach()
+				tgt_on_tgt_masked = tgt_feat_rendered_on_tgt[0,-3:,:,:].cpu().detach()
+
+				visuals = OrderedDict([("source_image", tensor2im(src_img[0])),
+										("target_image", tensor2im(tgt_img[0])),
 										("rendered_image", tensor2im(fake_image)),
-										("src on tgt", tensor2im(img1)),
-										("tgt on tgt", tensor2im(img2)),
-										("source texture", tensor2im(batch[2][0])),
-										("src tex on tgt", tensor2im(img3))])
+										("src on tgt", tensor2im(src_on_tgt)),
+										("tgt on tgt", tensor2im(tgt_on_tgt)),
+										("src on tgt masked", tensor2im(src_on_tgt_masked)),
+										("tgt on tgt masked", tensor2im(tgt_on_tgt_masked)),
+										("source texture", tensor2im(batch[2][0]))])
 
 				visualizer.display_current_results(visuals, epoch, total_steps)
 

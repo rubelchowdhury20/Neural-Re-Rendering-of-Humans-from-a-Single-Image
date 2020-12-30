@@ -20,7 +20,7 @@ class Pix2PixHDModel(BaseModel):
 		# define networks
 
 		# generator network
-		self.netG = networks.define_G(self.cfg.netG_input_nc+3, self.netG_output_nc, self.cfg.ngf, self.cfg.netG, 
+		self.netG = networks.define_G(self.cfg.netG_input_nc, self.netG_output_nc, self.cfg.ngf, self.cfg.netG, 
 						self.cfg.n_downsample_global, self.cfg.n_blocks_global, gpu_ids=self.cfg.gpu_ids)
 
 		# discriminator network
@@ -60,28 +60,30 @@ class Pix2PixHDModel(BaseModel):
 
 
 
-	def forward(self, src_img, src_rendered_on_tgt, tgt_img, tgt_rendered_on_tgt, src_tex_rendered_on_tgt):
-		# fake_image = self.netG.forward(src_rendered_on_tgt)
-		fake_image = self.netG.forward(torch.cat((src_rendered_on_tgt, tgt_img), dim=1))
+	def forward(self, src_img, src_rendered_on_tgt, tgt_img, tgt_rendered_on_tgt, apparel_image):
+		# fake generation
+		fake_image = self.netG.forward(torch.cat((src_rendered_on_tgt, apparel_image), dim=1))
+		# fake_image = self.netG.forward(torch.cat((src_rendered_on_tgt, tgt_img), dim=1))
 
 		# fake detection and loss
-		pred_fake = self.discriminate(src_rendered_on_tgt, fake_image)
+		pred_fake = self.discriminate(torch.cat((src_rendered_on_tgt, apparel_image), dim=1), fake_image)
 		loss_D_fake = self.criterionGAN(pred_fake, False)
 
 		# real detection and loss
-		pred_real = self.discriminate(tgt_rendered_on_tgt, tgt_img)
+		pred_real = self.discriminate(torch.cat((tgt_rendered_on_tgt, apparel_image), dim=1), tgt_img)
 		loss_D_real = self.criterionGAN(pred_real, True)
 
-		# GAN loss (Fake Passability Loss)        
-		pred_fake = self.netD.forward(torch.cat((src_rendered_on_tgt, fake_image), dim=1))        
+		# GAN loss (Fake Passability Loss)
+		pred_fake = self.discriminate(torch.cat((src_rendered_on_tgt, apparel_image), dim=1), fake_image)        
+		# pred_fake = self.netD.forward(torch.cat((src_rendered_on_tgt, fake_image), dim=1))        
 		loss_G_GAN = self.criterionGAN(pred_fake, True)
 
 		# VGG feature matching loss
 		loss_G_VGG = 0
 		if not self.cfg.no_vgg_loss:
-			loss_G_VGG = self.criterionVGG(fake_image, src_tex_rendered_on_tgt)
+			loss_G_VGG = self.criterionVGG(fake_image, tgt_img)
 
-		return loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG, fake_image, src_rendered_on_tgt, tgt_rendered_on_tgt, src_tex_rendered_on_tgt
+		return loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG, fake_image
 
 	def save(self, which_epoch):
 		self.save_network(self.netG, 'G', which_epoch, self.cfg.gpu_ids)

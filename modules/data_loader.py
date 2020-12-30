@@ -3,6 +3,7 @@ import random
 
 # third party imports
 import cv2
+import random
 import numpy as np
 from PIL import Image
 
@@ -11,6 +12,7 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 
 # local imports
+from config import texture_transform
 
 
 class NeuralDataset(Dataset):
@@ -23,17 +25,24 @@ class NeuralDataset(Dataset):
 		return len(self.image_list)
 
 	def __getitem__(self, index):
-		source_image_name = self.image_list[index].split(".")[0]
-		target_image_name = random.choice(self.image_list).split(".")[0]
+		apparel_name = self.image_list[index][2]
+		if(random.choice([True, False])):
+			source_image_name = self.image_list[index][0][:-4]
+			target_image_name = self.image_list[index][1][:-4]
+		else:
+			source_image_name = self.image_list[index][1][:-4]
+			target_image_name = self.image_list[index][0][:-4]
 
-		source_image_path = self.path + "model_images/" + source_image_name + ".jpg"
-		source_dense_path = self.path + "model_images_dense/" + source_image_name + ".npy"
-		source_texture_path = self.path + "model_images_atlas_texture/" + source_image_name + ".jpg"
+		source_image_path = self.path + "lip_images/" + source_image_name + ".jpg"
+		source_dense_path = self.path + "lip_dense/" + source_image_name + ".npy"
+		source_texture_path = self.path + "lip_textures/" + source_image_name + ".jpg"
 		
-		target_image_path = self.path + "model_images/" + target_image_name + ".jpg"
-		target_dense_path = self.path + "model_images_dense/" + target_image_name + ".npy"
-		target_texture_path = self.path + "model_images_atlas_texture/" + target_image_name + ".jpg"
+		target_image_path = self.path + "lip_images/" + target_image_name + ".jpg"
+		target_dense_path = self.path + "lip_dense/" + target_image_name + ".npy"
+		target_texture_path = self.path + "lip_textures/" + target_image_name + ".jpg"
 
+		apparel_path = self.path + "lip_apparels/" + apparel_name
+		apparel_image = Image.open(apparel_path)
 
 		source_image = Image.open(source_image_path)
 		source_dense = np.load(source_dense_path)
@@ -52,11 +61,15 @@ class NeuralDataset(Dataset):
 		if self.transform:
 			source_image = self.transform(source_image)
 			source_dense = torch.from_numpy(source_dense)
-			source_texture = self.transform(source_texture)
+			source_texture = texture_transform(source_texture)
+
 			target_image = self.transform(target_image)
 			target_dense = torch.from_numpy(target_dense)
-			target_texture = self.transform(target_texture)
-			return source_image, source_dense, source_texture, target_image, target_dense, target_texture
+			target_texture = texture_transform(target_texture)
 
-		return source_image, source_dense, source_texture, target_image, target_dense, target_texture
+			apparel_image = self.transform(apparel_image)
+
+			return source_image, source_dense, source_texture, target_image, target_dense, target_texture, apparel_image
+
+		return source_image, source_dense, source_texture, target_image, target_dense, target_texture, apparel_image
 

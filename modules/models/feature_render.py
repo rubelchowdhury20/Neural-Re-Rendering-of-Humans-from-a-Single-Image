@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 
 # local imports
+from config import DEVICE
 
 
 class FeatureRender(nn.Module):
@@ -15,10 +16,14 @@ class FeatureRender(nn.Module):
 		super(FeatureRender, self).__init__()
 		self.config = config
 		
-	def forward(self, feature, dense_pose):
-		atlas_feature = self._unfold_texture(feature)		# dimension(batch_size, channel, 24, height, width)
-		mapped_feature = self._map_texture(atlas_feature, dense_pose)
-		return mapped_feature
+	def forward(self, source_feature, target_feature, dense_pose, source_texture, target_image):
+		source_atlas_feature = self._unfold_texture(source_feature)		# dimension(batch_size, channel, 24, height, width)
+		target_atlas_feature = self._unfold_texture(target_feature)
+		union_feature = self._union_of_textures(source_atlas_feature, target_atlas_feature)
+		mapped_feature = self._map_texture(union_feature, dense_pose)
+		mapped_apparel_on_target = self._map_source_apparel_on_target(source_texture, target_image, dense_pose)
+		
+		return torch.cat((mapped_feature, mapped_apparel_on_target), dim=1)
 
 
 	# unfolding the atlas feature textures to 24 channels
@@ -31,6 +36,16 @@ class FeatureRender(nn.Module):
 		unfolded_feature = unfolded_feature.reshape(self.bs, self.c, 24, self.height_fraction, self.width_fraction)
 
 		return unfolded_feature		# shape(bs, c, 24, h, w) or shape(bs, c, 24, 64, 42)
+
+	# given two unfolded textures, take apparel from one and identity from another and mix both of them
+	def _union_of_textures(self, apparel_texture, identity_texture):
+		union_texture = torch.zeros(apparel_texture.shape).to(DEVICE)
+		union_texture[:,:,0,:,:] = identity_texture[:,:,0,:,:]
+		union_texture[:,:,1,:,:] = apparel_texture[:,:,1,:,:]
+		union_texture[:,:,2:14,:,:] = identity_texture[:,:,2:14,:,:]
+		union_texture[:,:,14:22,:,:] = apparel_texture[:,:,14:22,:,:]
+		union_texture[:,:,22:,:,:] = identity_texture[:,:,22:,:,:]
+		return union_texture
 
 
 	# function to transfer map the atlas texture from uv space of densepose to image pixels of human image	
@@ -102,5 +117,27 @@ class FeatureRender(nn.Module):
 		painted_texture = painted_texture.permute(0, 2, 1, 3, 4)
 		painted_texture = painted_texture * dense_class_mask	# this step to make the background zero before the following summation
 		painted_texture = torch.sum(painted_texture, 2)
-
 		return painted_texture
+
+	# function to map only the source apparel to target dense keeping other body parts as it is
+	def _map_source_apparel_on_target(self, source_texture, target_image, dense_pose):
+		unfolded_texture = self._unfold_texture(source_texture)
+		mapped_source_feature = self._map_texture(unfolded_texture, dense_pose)
+		
+		background_mask = torch.logical_not(dense_pose[:,:,:,0] == 0)
+		apparel_mask = dense_pose[:,:,:,0] == 2
+		for i in range(15, 23):
+			apparel_mask = torch.logical_or(apparel_mask, dense_pose[:,:,:,0] == i)
+
+		background_mask = background_mask.unsqueeze(1).repeat(1, source_texture.shape[1], 1, 1)
+		apparel_mask = apparel_mask.unsqueeze(1).repeat(1, source_texture.shape[1], 1, 1)
+		identity_mask = torch.logical_not(apparel_mask)
+		
+		apparel_masked = mapped_source_feature * apparel_mask * background_mask
+		identity_masked = target_image * identity_mask * background_mask
+
+		return apparel_masked + identity_masked
+
+
+
+
