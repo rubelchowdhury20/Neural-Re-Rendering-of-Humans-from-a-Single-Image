@@ -100,8 +100,8 @@ def train(config):
 			loss_G_VGG = torch.mean(loss_G_VGG)
 
 			 # calculate final loss scalar
-			loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
-			# loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN
+			# loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
+			loss_G = config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
 
 			feature_loss_meter.update(feature_loss.item(), config.args.batch_size)
 			loss_D_meter.update(loss_D.item(), config.args.batch_size)
