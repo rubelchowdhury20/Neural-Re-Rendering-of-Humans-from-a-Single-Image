@@ -83,6 +83,7 @@ class CreateModel(BaseModel):
 		apparel_image = apparel_image.to("cuda:1")
 
 
+		print(self.render_net.get_device())
 		loss_D_fake, loss_D_real, loss_G_GAN, loss_G_VGG, rendered_image = self.render_net(source_image, rendered_src_feat_on_tgt, target_image, rendered_tgt_feat_on_tgt, apparel_image)
 
 		loss_D = loss_D_fake + loss_D_real
