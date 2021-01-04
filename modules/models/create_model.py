@@ -55,7 +55,7 @@ class CreateModel(BaseModel):
 		# apparel_image = batch[6].to(self.config.DEVICE)
 
 		source_image = batch[0].to("cuda:0")
-		# source_dense = batch[1].to(self.config.DEVICE)
+		source_dense = batch[1].to("cuda:0")
 		source_texture = batch[2].to("cuda:0")
 		target_image = batch[3].to("cuda:0")
 		target_dense = batch[4].to("cuda:0")

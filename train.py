@@ -60,8 +60,8 @@ def train(config):
 	# initializng the model
 	model = create_model.CreateModel(config)
 	if config.args.is_train and len(config.args.gpu_ids):
-		pass
-		# model = torch.nn.DataParallel(model, device_ids=config.args.gpu_ids)
+		# pass
+		model = torch.nn.DataParallel(model, device_ids=config.args.gpu_ids)
 
 	optimizer_feature, optimizer_G, optimizer_D = model.module.optimizer_feature, model.module.optimizer_G, model.module.optimizer_D
 
