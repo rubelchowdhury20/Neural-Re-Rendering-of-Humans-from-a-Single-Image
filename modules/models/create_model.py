@@ -78,6 +78,7 @@ class CreateModel(BaseModel):
 
 		rendered_src_feat_on_tgt = rendered_src_feat_on_tgt.to("cuda:1")
 		rendered_tgt_feat_on_tgt = rendered_tgt_feat_on_tgt.to("cuda:1")
+		source_image = source_image.to("cuda:1")
 		target_image = target_image.to("cuda:1")
 		apparel_image = apparel_image.to("cuda:1")
 
