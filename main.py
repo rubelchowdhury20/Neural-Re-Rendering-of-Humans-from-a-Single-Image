@@ -59,9 +59,9 @@ if __name__ == '__main__':
 	parser.add_argument('--niter', type=int, default=100, help='# of iter at starting learning rate')
 	parser.add_argument('--niter_decay', type=int, default=100, help='# of iter to linearly decay learning rate to zero')
 
-	# parser.add_argument("--data_directory", type=str, default="/media/rainier/rubel/projects/virtual-try-on/dataset/", help="path to the directory having images for training.")
+	parser.add_argument("--data_directory", type=str, default="/media/rainier/rubel/projects/virtual-try-on/dataset/lip_dataset/", help="path to the directory having images for training.")
 	# parser.add_argument("--data_directory", type=str, default="/media/tensor/EXTDRIVE/projects/virtual-try-on/dataset/zalando_final/", help="path to the directory having images for training.")	
-	parser.add_argument("--data_directory", type=str, default="/media/tensor/EXTDRIVE/projects/virtual-try-on/dataset/lip_mpv_dataset/", help="path to the directory having images for training.")
+	# parser.add_argument("--data_directory", type=str, default="/media/tensor/EXTDRIVE/projects/virtual-try-on/dataset/lip_mpv_dataset/", help="path to the directory having images for training.")
 	parser.add_argument('--continue_train', action='store_true', help='continue training: load the latest model')
 	parser.add_argument('--load_pretrain', type=str, default='', help='load the pretrained model from the specified location')
 	parser.add_argument('--which_epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
