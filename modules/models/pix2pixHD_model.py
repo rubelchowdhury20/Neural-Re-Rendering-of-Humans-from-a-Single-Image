@@ -64,6 +64,7 @@ class Pix2PixHDModel(BaseModel):
 		# fake generation
 		print(src_rendered_on_tgt.get_device())
 		print(apparel_image.get_device())
+		print(self.netG.get_device())
 		fake_image = self.netG.forward(torch.cat((src_rendered_on_tgt, apparel_image), dim=1))
 		# fake_image = self.netG.forward(torch.cat((src_rendered_on_tgt, tgt_img), dim=1))
 
