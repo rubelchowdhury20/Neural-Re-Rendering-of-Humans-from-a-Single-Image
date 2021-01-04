@@ -91,4 +91,7 @@ class CreateModel(BaseModel):
 
 	def save_feature_net(self, which_epoch):
 		self.save_network(self.feature_net, 'Feature', which_epoch, self.config.args.gpu_ids)
+
+	def update_learning_rate(self):
+		self.render_net.update_learning_rate()
 		

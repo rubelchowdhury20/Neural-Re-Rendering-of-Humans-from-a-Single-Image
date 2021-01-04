@@ -101,6 +101,7 @@ def train(config):
 
 			 # calculate final loss scalar
 			# loss_G = config.args.lambda_tex * feature_loss + config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
+			feature_loss = config.args.lambda_tex * feature_loss
 			loss_G = config.args.lambda_adv * loss_G_GAN + config.args.lambda_vgg * loss_G_VGG
 
 			feature_loss_meter.update(feature_loss.item(), config.args.batch_size)
@@ -114,12 +115,14 @@ def train(config):
 			optimizer_feature.zero_grad()
 			optimizer_D.zero_grad()
 			
+			# update feature-net weights
+			feature_loss.backward(retain_graph=True)
+			optimizer_feature.step()
+
 			# update generator weights
 			loss_G.backward(retain_graph=True)          
 			optimizer_G.step()
 			
-			# update feature-net weights
-			optimizer_feature.step()
 			
 			# update discriminator weights
 			loss_D.backward        
@@ -165,8 +168,11 @@ def train(config):
 			### save latest model
 			if total_steps % config.args.save_latest_freq == save_delta:
 				print('saving the latest model (epoch %d, total_steps %d)' % (epoch, total_steps))
-				model.module.render_net.save('latest')
-				model.module.save_feature_net("latest")            
+				# model.module.render_net.save('latest')
+				# model.module.save_feature_net("latest") 
+
+				model.render_net.save('latest')
+				model.save_feature_net("latest")            
 				np.savetxt(iter_path, (epoch, epoch_iter), delimiter=',', fmt='%d')
 
 
@@ -174,17 +180,24 @@ def train(config):
 		if epoch % config.args.save_epoch_freq == 0:
 			print('saving the model at the end of epoch %d, iters %d' % (epoch, total_steps))        
 			
-			model.module.render_net.save('latest')
-			model.module.save_feature_net("latest")            
+			# model.module.render_net.save('latest')
+			# model.module.save_feature_net("latest")            
 
-			model.module.render_net.save(epoch)
-			model.module.save_feature_net(epoch)
+			# model.module.render_net.save(epoch)
+			# model.module.save_feature_net(epoch)
+
+			model.render_net.save('latest')
+			model.save_feature_net("latest")            
+
+			model.render_net.save(epoch)
+			model.save_feature_net(epoch)
 
 			np.savetxt(iter_path, (epoch+1, 0), delimiter=',', fmt='%d')
 
 		### linearly decay learning rate after certain iterations
 		if epoch > config.args.niter:
-			model.module.update_learning_rate()
+			# model.module.update_learning_rate()
+			model.update_learning_rate()
 
 
 
