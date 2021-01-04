@@ -39,7 +39,8 @@ class FeatureRender(nn.Module):
 
 	# given two unfolded textures, take apparel from one and identity from another and mix both of them
 	def _union_of_textures(self, apparel_texture, identity_texture):
-		union_texture = torch.zeros(apparel_texture.shape).to(DEVICE)
+		# union_texture = torch.zeros(apparel_texture.shape).to(DEVICE)
+		union_texture = torch.zeros(apparel_texture.shape).to("cuda:0")
 		union_texture[:,:,0,:,:] = identity_texture[:,:,0,:,:]
 		union_texture[:,:,1,:,:] = apparel_texture[:,:,1,:,:]
 		union_texture[:,:,2:14,:,:] = identity_texture[:,:,2:14,:,:]
