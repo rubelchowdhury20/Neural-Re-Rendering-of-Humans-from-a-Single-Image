@@ -63,7 +63,8 @@ def train(config):
 		pass
 		# model = torch.nn.DataParallel(model, device_ids=config.args.gpu_ids)
 
-	optimizer_feature, optimizer_G, optimizer_D = model.module.optimizer_feature, model.module.optimizer_G, model.module.optimizer_D
+	# optimizer_feature, optimizer_G, optimizer_D = model.module.optimizer_feature, model.module.optimizer_G, model.module.optimizer_D
+	optimizer_feature, optimizer_G, optimizer_D = model.optimizer_feature, model.optimizer_G, model.optimizer_D
 
 
 	# initializing the visualization option
