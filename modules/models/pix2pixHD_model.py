@@ -14,6 +14,7 @@ class Pix2PixHDModel(BaseModel):
 		super(Pix2PixHDModel, self).__init__()
 		self.netG_output_nc = 3
 		self.cfg = cfg
+		self.cfg.netG_input_nc = self.cfg.feature_output_nc + 6
 
 		BaseModel.initialize(self, cfg)
 
