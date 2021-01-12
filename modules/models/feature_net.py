@@ -110,7 +110,7 @@ class UpConv(nn.Module):
 
 class FeatureNet(nn.Module):
 	def __init__(self, num_classes, in_channels=3, depth=5,
-				 start_filts=8, up_mode='transpose',
+				 start_filts=32, up_mode='transpose',
 				 merge_mode='concat'):
 		"""
 		Arguments:
