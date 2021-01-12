@@ -202,18 +202,12 @@ class FeatureNet(nn.Module):
 
 		# encoder pathway, save outputs for merging
 		for i, module in enumerate(self.down_convs):
-			print("encoder shape")
-			print(x.shape)
 			x, before_pool = module(x)
-			print(x.shape)
-			print(before_pool.shape)
 			encoder_outs.append(before_pool)
 
 		for i, module in enumerate(self.up_convs):
 			before_pool = encoder_outs[-(i+2)]
 			x = module(before_pool, x)
-			print("decoder shape")
-			print(x.shape)
 
 		# No softmax is used. This means you need to use
 		# nn.CrossEntropyLoss is your training script,
