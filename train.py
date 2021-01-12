@@ -118,6 +118,8 @@ def train(config):
 				# update generator weights
 				loss_G.backward(retain_graph=True)          
 				optimizer_G.step()
+				optimizer_feature.step()
+				optimizer_feature.zero_grad()
 
 				# update feature-net weights
 				feature_loss.backward(retain_graph=True)
@@ -193,10 +195,10 @@ def train(config):
 
 		# 	np.savetxt(iter_path, (epoch+1, 0), delimiter=',', fmt='%d')
 
-		### linearly decay learning rate after certain iterations
-		# if epoch > config.args.niter:
-		# 	# model.module.update_learning_rate()
-		# 	model.update_learning_rate()
+		## linearly decay learning rate after certain iterations
+		if epoch > config.args.niter:
+			# model.module.update_learning_rate()
+			model.update_learning_rate()
 
 
 

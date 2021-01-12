@@ -56,7 +56,7 @@ if __name__ == '__main__':
 	parser.add_argument('--beta1', type=float, default=0.5, help='momentum term of adam')
 	parser.add_argument('--norm', type=str, default='instance', help='instance normalization or batch normalization')
 	parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
-	parser.add_argument('--niter', type=int, default=100, help='# of iter at starting learning rate')
+	parser.add_argument('--niter', type=int, default=5, help='# of iter at starting learning rate')
 	parser.add_argument('--niter_decay', type=int, default=100, help='# of iter to linearly decay learning rate to zero')
 
 	parser.add_argument("--data_directory", type=str, default="/media/rainier/rubel/projects/virtual-try-on/dataset/lip_dataset/", help="path to the directory having images for training.")
@@ -107,6 +107,6 @@ if __name__ == '__main__':
 	# loss arguments
 	parser.add_argument('--lambda_tex', type=float, default=1.0, help='lambda value for feature/texture loss in total loss')
 	parser.add_argument('--lambda_adv', type=float, default=1.0, help='lambda value for adversarial loss in total loss')
-	parser.add_argument('--lambda_vgg', type=float, default=5.0, help='lambda value for vgg loss in total loss')    
+	parser.add_argument('--lambda_vgg', type=float, default=10.0, help='lambda value for vgg loss in total loss')    
 
 	main(parser.parse_args())
