@@ -118,11 +118,10 @@ def train(config):
 				# update generator weights
 				loss_G.backward(retain_graph=True)          
 				optimizer_G.step()
-				optimizer_feature.step()
-				optimizer_feature.zero_grad()
+
 
 				# update feature-net weights
-				feature_loss.backward(retain_graph=True)
+				(loss_G + feature_loss).backward(retain_graph=True)
 				optimizer_feature.step()
 				
 				# update discriminator weights
