@@ -119,9 +119,8 @@ def train(config):
 				loss_G.backward(retain_graph=True)          
 				optimizer_G.step()
 
-
 				# update feature-net weights
-				(loss_G + feature_loss).backward(retain_graph=True)
+				feature_loss.backward(retain_graph=True)
 				optimizer_feature.step()
 				
 				# update discriminator weights
