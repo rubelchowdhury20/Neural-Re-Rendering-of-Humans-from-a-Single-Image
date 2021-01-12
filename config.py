@@ -22,7 +22,7 @@ data_transforms = {
 }
 
 texture_transform = transforms.Compose([
-		# transforms.Resize((300, 450)),
+		transforms.Resize((320, 480), interpolation=0),
 		transforms.ToTensor(),
 		transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 	])
